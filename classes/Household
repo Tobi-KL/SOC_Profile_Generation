@@ -1,1 +1,56 @@
+class Household:
+    def __init__(self, household_ID, randomize_household):
+        self.household_ID = household_ID
+        #self.household_size = household_size
+        self.position = np.where(meta_mop[:,0] == self.household_ID)[0]
 
+        if randomize_household:
+          self.chosen_household = random.choice (meta_mop_filtered.astype(int))
+          #personsArray = np.where(meta_mop_filtered[:,0] == self.chosen_household[0])[0]
+           # for i in personsArray:
+                #print(i)
+        else:
+          self.chosen_household = meta_mop_filtered.astype(int) [np.where(meta_mop_filtered[:,0] == self.household_ID)]
+
+        """
+        - Constructor of household object
+        - householdID: ID of household (MOP-Data) -> sorted in ascending order
+        - householdSize: # of occupants of household
+        - randomize_household: bool, default=False (defines, whether household should be chosen randomly)
+        """
+  
+    def get_household(self):
+      return self.chosen_household.astype(int)
+      # returns chosen household (array with >= 1 entries (1 entry = 1 person, 1 year))
+
+    def get_number_of_occupants(self):
+      return self.chosen_household[0,5]
+      # returns number of occupants living in chosen household
+    
+    def get_number_of_cars(self):
+      return self.chosen_household[0,7]
+      # returns number of cars of chosen household
+    
+    def get_data_position(self):
+      #self.position = np.where(meta_mop[:,0] == self.household_ID)[0]
+      position_list =[]
+      for i in self.position:
+          position_list.append(i)
+      return position_list
+      # returns indeces of chosen household in data sets
+    
+    def get_states(self, start, end):
+      for i in self.position:
+        return states_mop[self.position,start:end]
+      # returns states for timespace between start and end
+
+    def get_speeds(self, start, end):
+      for i in self.position:
+        return speed_mop[self.position,start:end]
+      # returns speeds for timespace between start and end
+
+    def get_persons (self, person_number):
+      household_positions = self.get_data_position()
+      persons = [Person(position = i, household_ID = household_1.household_ID) for i in household_positions]
+      return persons[person_number].position
+      # returns position of chosen person-object in data set
