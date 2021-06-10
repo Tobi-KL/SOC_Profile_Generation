@@ -1,1 +1,65 @@
+class Person:
+    def __init__(self, position, household_ID):
+      self.position = position #position in data
+      self.household_ID = household_ID
+      #self.total_distance = total_distance
+       
+      if ((self.get_state(0,1008)==14).sum() > 0):
+        self.driver_bool = True  #true, wenn person ein Fahrer ist
+      else:
+        self.driver_bool = False
+      
+      if self.driver_bool == True:
+        list_1 = self.get_driver_positions(0, 1008) #Liste aller states=14
+        speeds_sum = 0
+        for i in list_1:
+          speeds_sum = speeds_sum + self.get_single_speed(i)     #Summe aller Geschwindigkeiten (state=14) 
+        mean_speed = speeds_sum / len(list_1)  # in km/h
+        time = len(list_1) * 10 # in min
+        distance = mean_speed * time / 60
+        self.total_distance = distance
+      else:
+        self.total_distance = 0   
 
+
+    """
+    - Constructor of Person-Object
+    - householdID: ID of household (MOP-Data) -> sorted in ascending order
+    - position: position of individual person in data set (first line in data set = person 0)
+    """
+
+    def get_state(self, start, end):
+        states = states_mop_filtered[self.position,start:end]
+        return states
+    # returns states for individual persons between start and end
+
+    def get_speed(self, start, end):
+        return speed_mop_filtered[self.position,start:end]
+    # returns speed for timespace between start and end
+
+    def get_single_speed(self, timestep):
+        return speed_mop_filtered[self.position, timestep]
+    # returns speed for one single timestep
+
+    def get_adjusted_states(self, start, end):
+        states = self.get_state(start,end)
+        states_adjusted = np.where((states == 8) | (states == 14) | (states == 1) | (states == 2), states, 30)
+        return states_adjusted
+    # returns adjusted states for individual person
+    # 8: home; 1,2: work; 14: Car driver; 30: rest
+
+    def get_driver_positions(self, start, end):
+        list_car_driver = [i for i in range(len(self.get_state(start, end))) if self.get_state(start, end)[i] == 14]
+        return list_car_driver
+    # returns every position in states where car driver (state=14) = true
+    
+    def get_total_distance(self, start, end):
+      list_1 = self.get_driver_positions(start, end) #Liste aller states=14
+      speeds_sum = 0
+      for i in list_1:
+        speeds_sum = speeds_sum + self.get_single_speed(i)     #Summe aller Geschwindigkeiten (state=14) 
+      mean_speed = speeds_sum / len(list_1)  # in km/h
+      time = len(list_1) * 10 # in min
+      distance = mean_speed * time / 60
+      return distance 
+    # returns total distance driven by person in the week
