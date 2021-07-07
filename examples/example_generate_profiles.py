@@ -55,4 +55,4 @@ create_profiles(IDs = IDs,
                 max_state_of_charge = max_state_of_charge,
                 path = path,
                 bool_plot = bool_plot,
-                bool_create_csv = bool_create_csv
+                bool_create_csv = bool_create_csv)
