@@ -1,0 +1,14 @@
+Segment;Marke;Modell;Kapazität (kWh);Verbrauch (kWh/100km);Ladeleistung (kW)
+1;Smart;EQ fortwo;18;16.1;22
+2;Renault;Zoe R110 Z.E. 40;41;16.1;46
+3;VW;ID.3 Pro;62;13.4;100
+4;Tesla;Model 3 Long Range;77;14.8;190
+5;Tesla;Model 3 Performance;82;16.5;250
+6;Tesla;Model S Maximale Reichweite;95;16.2;250
+7;Tesla;Model X Maximale Reichweite;95;18.9;250
+8;Porsche;Taycan;79;18;225
+9;KIA ;EV6 Standard Range 2WD;62;18.1;175
+10;Mercedes;EQV 300;100;27.6;110
+11;Nissan;e-NV200 Evalia;40;25.9;46
+12;Nissan/zooom;Evalia Stadtindianer;24;16.5;80
+13;Tesla;Model X Maximale Reichweite;95;18.9;250
