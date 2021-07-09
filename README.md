@@ -6,7 +6,7 @@ Each household car is substituted with a simlilar electric car, assuming no chan
 The tool calculates the overall energy demand of each electric car and, as a result, the energy demand for mobility of the household.
 Focus is set on realistic simulation of energy consumption of electric cars in everyday use.
 
-![grafik](https://user-images.githubusercontent.com/82574125/124934542-1a8f7680-e005-11eb-91cf-0d1c79310f43.png)
+![grafik](https://user-images.githubusercontent.com/82574125/125078652-ff833c00-e0c2-11eb-8cde-49c4aff18817.png)
 
 
 # Installation
