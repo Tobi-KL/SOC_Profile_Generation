@@ -25,8 +25,8 @@ The tool requires the following Python packages:
 
 # Input data
 
-The input data can be found in ...\SOC_profile_generation\inputs
-Own data sets can be used accordingly.
+The input data can be found in ...\SOC_profile_generation\inputs.
+Own datasets with same format can be used.
 
 The following data is required:
 - pkl file with mobility data for households (e.g. MOP-data, Germany)
