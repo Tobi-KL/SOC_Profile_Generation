@@ -12,7 +12,8 @@ Focus is set on realistic simulation of energy consumption of electric cars in e
 
 Load the ipynb file "Run_SOC_Profile_Generation" into Google Colab.
 Download and save all classes and functions into one directory and change directory in Colab-file.
-Download all input data and fill in their paths in Colab-file.
+Download all input data.
+Adjust all paths in Colab file depending where classes, functions and input data are saved.
 
 # Dependencies
 
