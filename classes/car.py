@@ -7,6 +7,8 @@ Original file is located at
     https://colab.research.google.com/drive/1UKefSH5fSHdKtfZtT3rbXcWXDkLZoZl6
 """
 
+import numpy as np
+
 class Car:
     """ Class Car:
     - holds information about one car
@@ -14,15 +16,27 @@ class Car:
     - simulates charging with 2 strategies and determines charging profiles:
       - max strategy: when possible, car is charged to max state of charge
       - min strategy: state of chrg is held as low as possible, but just enough
-    - max strategy has to be run before min strategy
+    - max strategy has to be run before min strategy (possible segment adjust.)
     """
-    def __init__(self, household_ID, car_nr, min_charge, max_charge):
+    def __init__(self, 
+                 states_profile, 
+                 speeds_profile,
+                 weather_consumption,
+                 segment, 
+                 csv_database_electric_cars,
+                 min_charge,
+                 max_charge,
+                 ts_length):
         """ inits Car class with:
         Args: 
-          - household_ID:         ID of household to which car belongs
-          - car_nr:               # of car in hh (sorted by decreasing dist.)
+          - states_profile:       array with all states (from Household class)
+          - speeds_profile:       array with all speeds (while driving)
+          - wheather consumption: array with consumption due to temperature
+          - segment:              car segment (before possible adjustment)
+          - csv_database_el.:     table with meta data electric cars
           - min_charge:           min state of charge allowed [in %]
           - max_charge:           max state of charge allowed
+          - ts_length:            timestep length
         Instance attributes:
           - segment:              segment of car 
               (can be increased, if battery cap. not enough for profile gen.)
@@ -32,61 +46,32 @@ class Car:
           - max_state_of_charge:  max state of chrg allowed [kWh](can be incr.)
           - time_z:               timestep with lowest capacity in period
         """
-        self.household_ID = household_ID
-        self.car_nr = car_nr
+        self.states = states_profile
+        self.speeds = speeds_profile
         self.min_charge = min_charge
         self.max_charge = max_charge
-        self.segment = self.get_segment()
-        self.capacity = csv_database_electric_cars[self.segment,3]
-        self.car_charging_power = csv_database_electric_cars[self.segment,5]    
+        self.csv_database_electric_cars = csv_database_electric_cars
+        self.segment = segment
+        self.weather_consumption = weather_consumption
+        self.capacity = self.csv_database_electric_cars[self.segment, 3]
+        self.car_charging_power = self.csv_database_electric_cars[self.segment,5]    
         self.min_state_of_charge = self.min_charge * self.capacity / 100
         self.max_state_of_charge = self.max_charge * self.capacity / 100
+        self.ts_length = ts_length
         self.time_z = 0
-
-    def generate_consumption_profile(self, start, end):
-        """ main method 1:
-        returns consumption profile of car
-        consumption is influenced by:
-        - car segment
-        - car speed
-        - speed factor (depending on speed)
-        - outside temperature (additional consumption due to outside temp)
-        Args:
-        - start: first timestep
-        - end: last timestep
-        """
-        segment = self.get_segment()    # car segment
-        weather_cons_prf = self.get_weather_consumption(start, end)
-        dist_prf = self.get_distance_profile(start, end)
-        base_cons = csv_database_electric_cars[segment, 4]  # base consumption
-        speed_factors = self.get_speed_factors(start, end)  # speed factors
-        cons_profile = np.zeros(end-start)
-
-        # for each timestep: calculate consumption
-        for i in range(len(cons_profile)):
-            distance = dist_prf[i]                  
-            speed_factor = speed_factors[i]
-            cons_profile[i] = (speed_factor * distance * base_cons/100)
-
-        # add weather consumption only if car is driving
-        for i in range(len(cons_profile)):
-            if (cons_profile[i]!=0):
-                cons_profile[i] = cons_profile[i] + weather_cons_prf[i]
-        return cons_profile
-
 
     def max_state_of_charge_profile(self, 
                                     start, 
                                     end, 
                                     home_chrg_pwr, 
                                     work_chrg_pwr, 
-                                    eff_home, 
-                                    eff_work):
-        """ main method 2:
+                                    chrg_eff, 
+                                    dischrg_eff):
+        """
         - checks whether car can manage profile
         - generates state of charge profile for max strategy
         - max_state_of_charge_profile() has to be run before min_state_of_
-              charge_profile()
+              charge_profile() and before generate_consumption_profile()
 
         feasibility check:
         1. create state of charge profile for max strategy for current segment
@@ -100,8 +85,8 @@ class Car:
         - last:           last timestep
         - home_chrg_pwr:  max power of charging station at home
         - work_chrg_pwr:  max power of charging station at work
-        - eff_home:       efficiency of home charging station
-        - eff_work:       efficiency of work charging station
+        - chrg_eff:       efficiency of charging
+        - dischrg_eff:    efficiency of discharging
         """
 
         # as long as there are timesteps when state_of_charge is lower than 
@@ -110,27 +95,28 @@ class Car:
         # increase cap., min_state_of_charge, max_state_of_charge accordingly
         while ((self.segment in [1,2,3,4,5]) and 
                any(x < self.min_state_of_charge for x in
-                  self.max_state_of_charge_profile_wo_check(start, 
-                                                            end, 
-                                                            home_chrg_pwr, 
-                                                            work_chrg_pwr, 
-                                                            eff_home, 
-                                                            eff_work)[0])):    
+                  self.max_profile_generation(start, 
+                                              end, 
+                                              home_chrg_pwr, 
+                                              work_chrg_pwr, 
+                                              chrg_eff, 
+                                              dischrg_eff)[0])):    
             self.segment = self.segment + 1
-            self.capacity = csv_database_electric_cars[self.segment,3]
+            self.capacity = self.csv_database_electric_cars[self.segment,3]
             self.min_state_of_charge = self.min_charge * self.capacity / 100
             self.max_state_of_charge = self.max_charge * self.capacity / 100
-            print("Warning: Battery Capacity of car", self.car_nr, \
-                  "not high enough. Segment is adjusted to segment:", \
-                  self.segment)
+            print("Warning: Battery Capacity of car not high enough." \
+                  "Segment is adjusted to segment:", self.segment)
 
         else:
-            profiles = self.max_state_of_charge_profile_wo_check(start, 
-                                                                 end, 
-                                                                 home_chrg_pwr,
-                                                                 work_chrg_pwr, 
-                                                                 eff_home, 
-                                                                 eff_work)
+            # if no adjustment needed or all adjustments done:
+            # get max_state_of_charge_profile for final car segment
+            profiles = self.max_profile_generation(start, 
+                                                   end, 
+                                                   home_chrg_pwr,
+                                                   work_chrg_pwr, 
+                                                   chrg_eff, 
+                                                   dischrg_eff)
             max_state_of_charge_profile = profiles[0]
             chrg_profile = profiles[1]
             home_profile = profiles[2]
@@ -138,8 +124,17 @@ class Car:
         
         if any(x < self.min_state_of_charge 
                for x in max_state_of_charge_profile):
+            # if after adjustment to highest segment still not possible
             print("Profile generation not possible. Capacity too low.")
+            print("\n")
+
         else:
+            # return consists of 4 parts:
+            # 1. max_state_of_charge_profile: SOC for every timestep
+            # 2. chrg_profile:                possible chrg power for every ts
+            # 3. home_profile:               charged energy at home for every ts
+            # 4. work_profile:               charged energy at home for every ts 
+
             return (max_state_of_charge_profile, 
                     chrg_profile, 
                     home_profile, 
@@ -150,10 +145,10 @@ class Car:
                                     end, 
                                     home_chrg_pwr, 
                                     work_chrg_pwr, 
-                                    eff_home, 
-                                    eff_work):
-        """ main method 3:
-        - gives state of charge profile for min strategy (w/out feas. check)
+                                    chrg_eff, 
+                                    dischrg_eff):
+        """
+        - gives state of charge profile for min strategy (w/o feas. check)
         - max_state_of_charge_profile() has to be run before 
             min_state_of_charge_profile() in order to calculate time_z
         - time_z: timestep with lowest state_of_charge for max strategy 
@@ -180,8 +175,9 @@ class Car:
 
                 # state of charge from next timestep 
                 # + consumption from next timestep
-                state_of_charge_profile[i] = state_of_charge + diff
-                state_of_charge = state_of_charge + diff    # increase soc
+                # depending on dischrg_eff: consumption is higher
+                state_of_charge_profile[i] = state_of_charge + (diff / dischrg_eff)
+                state_of_charge = state_of_charge + (diff / dischrg_eff)
 
             # if car at home/work in next periode
             elif ((chrg_opts[i+1] == "home") 
@@ -194,8 +190,8 @@ class Car:
                                                      work_chrg_pwr, 
                                                      charging_location, 
                                                      state_of_charge, 
-                                                     eff_home, 
-                                                     eff_work, 
+                                                     chrg_eff, 
+                                                     dischrg_eff, 
                                                      timestep=i)
                 state_of_charge_profile[i] = charging_results[0]
                 state_of_charge = charging_results[1]
@@ -205,9 +201,9 @@ class Car:
 
                 # add consumed power to consumption profile of chrg stations
                 if chrg_opts[i] == "home":
-                    home_profile[i+1] = charging_results[2] * (2 - eff_home)
+                    home_profile[i+1] = charging_results[2] * (2 - dischrg_eff)
                 elif chrg_opts[i] == "work":
-                    work_profile[i+1] = charging_results[2] * (2 - eff_work)
+                    work_profile[i+1] = charging_results[2] * (2 - dischrg_eff)
 
             # car not driving and battery empty at min_state_of_charge
             else:
@@ -230,8 +226,8 @@ class Car:
 
                 # state of charge from next timestep 
                 # + consumption from next timestep
-                state_of_charge_profile[i] = state_of_charge + diff
-                state_of_charge = state_of_charge + diff   # increase soc
+                state_of_charge_profile[i] = state_of_charge + (diff / dischrg_eff)
+                state_of_charge = state_of_charge + (diff / dischrg_eff)
 
               
             # if car at home/work in next periode
@@ -245,8 +241,8 @@ class Car:
                                                      work_chrg_pwr, 
                                                      charging_location, 
                                                      state_of_charge, 
-                                                     eff_home, 
-                                                     eff_work, 
+                                                     chrg_eff, 
+                                                     dischrg_eff, 
                                                      timestep=i)
                 state_of_charge_profile[i] = charging_results[0]
                 state_of_charge = charging_results[1]
@@ -256,51 +252,61 @@ class Car:
 
                 # add consumed power to consumption profile of chrg stations
                 if chrg_opts[i] == "home":
-                    home_profile[i+1] = charging_results[2] * (2 - eff_home)
+                    home_profile[i+1] = charging_results[2] * (2 - dischrg_eff)
                 elif chrg_opts[i] == "work":
-                    work_profile[i+1] = charging_results[2] * (2 - eff_work)
+                    work_profile[i+1] = charging_results[2] * (2 - dischrg_eff)
 
              # car not driving and battery empty at min_state_of_charge
             else: 
                 state_of_charge_profile[i] = state_of_charge
 
+        # return consists of 4 parts:
+        # 1. max_state_of_charge_profile: SOC for every timestep
+        # 2. chrg_profile:                possible chrg power for every ts
+        # 3. home_profile:                charged energy at home for every ts
+        # 4. work_profile:                charged energy at home for every ts
         return (state_of_charge_profile, 
                 chrg_profile, 
                 home_profile, 
                 work_profile)
-
-
-    def get_states(self, start, end):
-        """ returns states profile for chosen car
+    
+    def generate_consumption_profile(self, start, end):
+        """ returns consumption profile of car
+        consumption is influenced by:
+        - car segment
+        - car speed
+        - speed factor (depending on speed)
+        - outside temperature (additional consumption due to outside temp)
+        Args:
+        - start: first timestep
+        - end: last timestep
         """
-        household = Household(household_ID = self.household_ID)
-        state_profile = household.generate_mobility_states_profiles(start, end)
-        return state_profile [self.car_nr - 1]
+        weather_cons_prf = self.get_weather_consumption(start, 
+                                                        end, 
+                                                        self.weather_consumption)
+        dist_prf = self.get_distance_profile(start, end)
+        base_cons = self.csv_database_electric_cars[self.segment, 4]  # base consumption
+        speed_factors = self.get_speed_factors(start, end)  # speed factors
+        cons_profile = np.zeros(end-start)
 
-    def get_speeds(self, start, end):
-        """ returns speeds profile for chosen car 
-        """
-        household = Household(household_ID = self.household_ID)
-        speed_profile = household.generate_mobility_speeds_profiles(start, end)
-        return speed_profile [self.car_nr - 1]
+        # for each timestep: calculate consumption
+        for i in range(len(cons_profile)):
+            distance = dist_prf[i]                  
+            speed_factor = speed_factors[i]
+            cons_profile[i] = (speed_factor * distance * base_cons / 100)
 
-    def get_segment(self):
-        """ returns segment of car
-        """
-        cars = csv_cars[np.where(csv_cars[:,0] == self.household_ID)]
-        segment = cars[self.car_nr - 1 : self.car_nr , 174]
-        if segment not in range(1, 14):  # if no segment is given, set it to 3
-            return 3
-        else:
-            return segment.astype(int)
+        # add weather consumption only if car is driving
+        for i in range(len(cons_profile)):
+            if (cons_profile[i] != 0):
+                cons_profile[i] = cons_profile[i] + weather_cons_prf[i]
+        return cons_profile
     
     def get_charging_options(self, start, end):
         """ returns array with charging options ("home", "work" or "0")
         """
-        states = self.get_states(start, end)
-        chrg_opts = np.where((states == 8), 
+        chrg_opts = np.where((self.states == 8), 
                              "home", 
-                             np.where((states == 1 | 2), "work", 0)) 
+                             np.where(((self.states == 1) | (self.states == 2)), "work", 0)) 
         return chrg_opts
 
     def get_charging_power(self, start, end, home_chrg_pwr, work_chrg_pwr):
@@ -323,7 +329,7 @@ class Car:
         """
         distance = np.zeros(end-start)
         for i in range(len(distance)):
-            distance[i] = (ts_length / 60) * self.get_speeds(start, end)[i]
+            distance[i] = (self.ts_length / 60) * self.speeds[i]
         return distance
 
     def get_speed_factors(self, start, end):
@@ -332,7 +338,7 @@ class Car:
         """
         # get speed profile and substitute entries for speed factor
         # hard coded based on assumptions
-        speed_factors = self.get_speeds(start, end).copy()
+        speed_factors = self.speeds.copy()
         for i in range(len(speed_factors)):
             if speed_factors[i] == 0:
                 speed_factors[i] = 0
@@ -346,50 +352,42 @@ class Car:
                 speed_factors[i] = 1.286
         return speed_factors
 
-    def get_weather_consumption(self, start, end):
+    def get_weather_consumption(self, start, end, weather_consumption):
         """ returns additional consumption per timestep dep. on temperature
         - loads temperatures for dates of observation (from csv)
         - calculates heating/cooling consumption based on these assumptions:
           - heating power for 5 degrees deviation from 20°C: 0.5 [kW]
           - cooling power for 5 degrees deviation from 20°C: 0.25 [kW]
         """
-        household = Household(household_ID = self.household_ID)
-        dates = household.dates
-        temperatures = []
-        for i in dates:
-            x = np.where(csv_weather[:,0]==i)
-            temperatures.append(csv_weather[x,1].astype(int)[0])
-            result = np.concatenate(temperatures[0:7])
-            weather_consumption = result[start:end].astype(float)
 
         # get temperature profile and substitute entries for power consumption
         for i in range(len(weather_consumption)):
             if weather_consumption[i] <= (-20):
-                weather_consumption[i] = 4 * (ts_length/60)      
+                weather_consumption[i] = 4 * (self.ts_length/60)      
             elif weather_consumption[i] <= (-15):
-                weather_consumption[i] = 3.5 * (ts_length/60)
+                weather_consumption[i] = 3.5 * (self.ts_length/60)
             elif weather_consumption[i] <= (-10):
-                weather_consumption[i] = 3 * (ts_length/60)
+                weather_consumption[i] = 3 * (self.ts_length/60)
             elif weather_consumption[i] <= (-5):
-                weather_consumption[i] = 2.5 * (ts_length/60)
+                weather_consumption[i] = 2.5 * (self.ts_length/60)
             elif weather_consumption[i] <= (0):
-                weather_consumption[i] = 2 * (ts_length/60)
+                weather_consumption[i] = 2 * (self.ts_length/60)
             elif weather_consumption[i] <= (5):
-                weather_consumption[i] = 1.5 * (ts_length/60)
+                weather_consumption[i] = 1.5 * (self.ts_length/60)
             elif weather_consumption[i] <= (10):
-                weather_consumption[i] = 1 * (ts_length/60)
+                weather_consumption[i] = 1 * (self.ts_length/60)
             elif weather_consumption[i] <= (15):
-                weather_consumption[i] = 0.5 * (ts_length/60)
+                weather_consumption[i] = 0.5 * (self.ts_length/60)
             elif weather_consumption[i] <= (20):
-                weather_consumption[i] = 0 * (ts_length/60)
+                weather_consumption[i] = 0 * (self.ts_length/60)
             elif weather_consumption[i] <= (25):
-                weather_consumption[i] = 0.25 * (ts_length/60)
+                weather_consumption[i] = 0.25 * (self.ts_length/60)
             elif weather_consumption[i] <= (30):
-                weather_consumption[i] = 0.5 * (ts_length/60)
+                weather_consumption[i] = 0.5 * (self.ts_length/60)
             elif weather_consumption[i] <= (35):
-                weather_consumption[i] = 0.75 * (ts_length/60)
+                weather_consumption[i] = 0.75 * (self.ts_length/60)
             elif weather_consumption[i] <= (40):
-                weather_consumption[i] = 1 * (ts_length/60)
+                weather_consumption[i] = 1 * (self.ts_length/60)
         return weather_consumption
 
     def max_charging(self, 
@@ -397,8 +395,8 @@ class Car:
                      work_chrg_pwr, 
                      charging_location, 
                      state_of_charge, 
-                     eff_home, 
-                     eff_work, 
+                     chrg_eff, 
+                     dischrg_eff, 
                      timestep):
         """ simulates charging (at home or at work) with max-strategy
         if state of charge between 80% and 100%: charging power of car reduced
@@ -422,27 +420,27 @@ class Car:
 
             # how much charging is possible? [kWh]
             possible_kwh = ((min(home_chrg_pwr, car_chrg_pwr)) 
-                * (ts_length/60) * eff_home)
+                * (self.ts_length/60) * chrg_eff)
 
             # how much does car need in this timestep? [kWh]
             needed_kwh = min(possible_kwh, 
                              self.max_state_of_charge - state_of_charge)
 
             # consumption of charging station
-            consumed_kwh = needed_kwh * (2 - eff_home)
+            consumed_kwh = needed_kwh * (2 - chrg_eff)
 
         elif (charging_location == "work"):
 
             # how much charging is possible? [kWh]
             possible_kwh = ((min(work_chrg_pwr, car_chrg_pwr)) 
-                * (ts_length/60) * eff_work)
+                * (self.ts_length/60) * chrg_eff)
 
             # how much does car need in this timestep? [kWh]
             needed_kwh = min(possible_kwh, 
                              self.max_state_of_charge - state_of_charge)
 
              # consumption of charging station
-            consumed_kwh = needed_kwh * (2-eff_work)
+            consumed_kwh = needed_kwh * (2 - chrg_eff)
         
         # adjust state_of_charge_profile and state_of_charge for this timestep
         # return also needed_kwh (actual used power [kWh])
@@ -456,8 +454,8 @@ class Car:
                      work_chrg_pwr,
                      charging_location,
                      state_of_charge,
-                     eff_home, 
-                     eff_work, 
+                     chrg_eff, 
+                     dischrg_eff, 
                      timestep):
         """ simulates charging (at home or at work) with min-strategy
         if state of charge between 80% and 100%: charging power of car reduced
@@ -481,27 +479,27 @@ class Car:
 
             # how much charging is possible? [kWh]
             possible_kwh = ((min(home_chrg_pwr, car_chrg_pwr)) 
-                * (ts_length/60) * eff_home)
+                * (self.ts_length/60) * chrg_eff)
 
             # how much does car need in this timestep? [kWh]
             needed_kwh = min(possible_kwh, 
                              state_of_charge - self.min_state_of_charge)
 
             # consumption of charging station
-            consumed_kwh = needed_kwh * (2-eff_home)
+            consumed_kwh = needed_kwh * (2 - chrg_eff)
 
         elif (charging_location == "work"):
 
             # how much charging is possible? [kWh]
             possible_kwh = ((min(work_chrg_pwr, car_chrg_pwr)) 
-                * (ts_length/60) * eff_work)
+                * (self.ts_length/60) * chrg_eff)
 
             # how much does car need in this timestep? [kWh]
             needed_kwh = min(possible_kwh, 
                              state_of_charge - self.min_state_of_charge)
 
             # consumption of charging station
-            consumed_kwh = needed_kwh * (2-eff_work)
+            consumed_kwh = needed_kwh * (2 - chrg_eff)
           
         # adjust state_of_charge_profile and state_of_charge for this timestep 
         # negative because of backwards iteration
@@ -511,14 +509,14 @@ class Car:
 
         return (state_of_charge_profile, state_of_charge, needed_kwh)
 
-    def max_state_of_charge_profile_wo_check(self, 
-                                             start,
-                                             end, 
-                                             home_chrg_pwr, 
-                                             work_chrg_pwr, 
-                                             eff_home, 
-                                             eff_work): 
-        """ this method creates max_state_of_charge_profile
+    def max_profile_generation(self, 
+                               start,
+                               end, 
+                               home_chrg_pwr, 
+                               work_chrg_pwr, 
+                               chrg_eff, 
+                               dischrg_eff): 
+        """ this method creates max_state_of_charge_profile and
         is needed for feasibility check in method max_state_of_charge_profile
         """
         state_of_charge = self.max_state_of_charge # max cap. at timestep 0
@@ -534,15 +532,16 @@ class Car:
                 diff = consumption_profile[i]
 
                 # subtract consumption from state_of_charge
-                state_of_charge_profile[i] = state_of_charge - diff
+                # depending on dischrg_eff: consumption is higher
+                state_of_charge_profile[i] = state_of_charge - (diff  * (2 - dischrg_eff))
 
                 # adjust state_of_charge
-                state_of_charge = state_of_charge - diff
+                state_of_charge = state_of_charge - (diff  * (2 - dischrg_eff))
 
             # if car at home/work and battery not full
             elif (((chrg_opts[i] == "home") 
                     | (chrg_opts[i] == "work")) 
-                    & (state_of_charge < max_state_of_charge)):
+                    & (state_of_charge < self.max_state_of_charge)):
                 charging_location = chrg_opts[i]
 
                 # simulate charging
@@ -550,8 +549,8 @@ class Car:
                                                      work_chrg_pwr, 
                                                      charging_location,
                                                      state_of_charge,
-                                                     eff_home, 
-                                                     eff_work,
+                                                     chrg_eff, 
+                                                     dischrg_eff,
                                                      timestep=i)
 
                 # adjust state_of_charge_profile and state_of_charge
@@ -562,9 +561,9 @@ class Car:
 
                 # add consumed power to consumption profile of chrg stations
                 if chrg_opts[i] == "home":
-                    home_profile[i] = charging_results[2] * (2 - eff_home)
+                    home_profile[i] = charging_results[2] * (2 - dischrg_eff)
                 elif chrg_opts[i] == "work":
-                    work_profile[i] = charging_results[2] * (2 - eff_work)
+                    work_profile[i] = charging_results[2] * (2 - dischrg_eff)
             
             # car not driving, battery already full or not at charging point
             else:
@@ -574,6 +573,11 @@ class Car:
         self.time_z = np.where(
             state_of_charge_profile == state_of_charge_profile.min())[0][0]
 
+        # return consists of 4 parts:
+        # 1. max_state_of_charge_profile: SOC for every timestep
+        # 2. chrg_profile:                possible chrg power for every ts
+        # 3. home_profile:                charged energy at home for every ts
+        # 4. work_profile:                charged energy at home for every ts
         return (state_of_charge_profile, 
                 chrg_profile, 
                 home_profile, 
