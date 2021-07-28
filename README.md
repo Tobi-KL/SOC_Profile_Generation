@@ -8,12 +8,26 @@ Focus is set on realistic simulation of energy consumption of electric cars in e
 
 ![grafik](https://user-images.githubusercontent.com/82574125/125078652-ff833c00-e0c2-11eb-8cde-49c4aff18817.png)
 
+# Application
+
+The tool calculates the energy demand for driving mobility behaviour of individual household occupants. 
+It assumes that all trips are made using electric cars. If trips in input data are made using conventional cars, the tools assigns a suitable electric car.
+Driving mobility energy demand can be used to model future energy demand by households. 
+As predicted by reseachers, households will electrify most of their energy consumption such as heating and mobility. 
+This tool can be used to model the increased mobility power demand which can be useful for further research on this topic and help to forecast power demand for suppliers.
+Different sociodemographic groups can be analysed which allows to model mobility behaviour for specific groups or comparisons between groups.\
+An exemplary application using synthetic data may be found here:
+
+*Kleinebrahm, Max; Torriti, Jacopo; McKenna, Russell; Ardone, Armin; Fichtner, Wolf;\
+Using neural networks to model long-term dependencies in occupancy behavior;\
+2021*
+
 # Installation
 
 Load the ipynb file "Run_SOC_Profile_Generation" into Google Colab.
 Download and save all classes and functions into one directory and change directory in Colab-file.
 Download all input data.
-Adjust all paths in Colab file depending where classes, functions and input data are saved.
+Adjust all paths in Colab file depending where classes, functions and input data are saved.\
 For detailed installation instructions see md-file "Installation".
 
 # Dependencies
@@ -32,7 +46,7 @@ Own datasets with same format can be used.
 
 The following data is required:
 - pkl file with mobility data for households (e.g. MOP-data, Germany)
-- csv file with temperatures for each timestep
+- csv file with temperatures for each timestep (download via http://www.soda-pro.com/web-services/meteo-data/merra)
 - csv file with electric cars for each car segment
 - csv file which holds information about electric cars' battery capacity (kWh), WLTP consumption (kWh) and charging power (kW)
 
