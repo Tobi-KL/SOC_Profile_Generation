@@ -172,10 +172,10 @@ def rank_households(meta_data_all,
         score = sum([income_pts, pop_pts, year_o_b_pts, job_pts, dist_pts])
         score_array.append(score)
     
-    # sort hosueholds by overall score and return x best fitting
+    # sort households by overall score and return x best fitting
     households_fitting = [x for _, x in sorted(zip(score_array, households))]
     number_of_households = len(households_fitting)
-    print("Number of fitting hosueholds:", number_of_households)
+    print("Number of fitting households:", number_of_households)
 
     # return only input quantity of fitting households (or all)
     if (quantity == "all"):
