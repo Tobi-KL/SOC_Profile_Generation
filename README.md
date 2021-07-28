@@ -14,6 +14,7 @@ Load the ipynb file "Run_SOC_Profile_Generation" into Google Colab.
 Download and save all classes and functions into one directory and change directory in Colab-file.
 Download all input data.
 Adjust all paths in Colab file depending where classes, functions and input data are saved.
+For detailed installation instructions see md-file "Installation".
 
 # Dependencies
 
