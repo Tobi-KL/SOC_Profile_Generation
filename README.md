@@ -165,8 +165,7 @@ The user is informed whether the car segment is adjusted to fit the profile, as 
 
 Plots can be created, e.g. State-of-charge plot for Max and Min charging strategy:
 
-![grafik](https://user-images.githubusercontent.com/82574125/124934352-e87e1480-e004-11eb-8756-5c2004808f52.png)
-
+![grafik](https://user-images.githubusercontent.com/82574125/128141020-93363395-c488-4850-a132-117d6db597bf.png)
 # References
 [1] Kleinebrahm, Max; Torriti, Jacopo; McKenna, Russell; Ardone, Armin; Fichtner, Wolf;\
 Using neural networks to model long-term dependencies in occupancy behavior;\
