@@ -1,3 +1,5 @@
+--- vorläufig: in input die beiden Dateien "data_mop_priority.pkl" und "TANK18.csv" einfügen (liegen nicht auf Github) ---
+
 # SOC_profile_generation
 
 The SOC_profile_generation tool generates electric load profiles for households based on their mobility behaviour.
