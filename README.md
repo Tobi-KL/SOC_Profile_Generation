@@ -6,7 +6,7 @@ Each household car is substituted with a simlilar electric car, assuming no chan
 The tool calculates the overall energy demand of each electric car and, as a result, the energy demand for mobility of the household.
 Focus is set on realistic simulation of energy consumption of electric cars in everyday use.
 
-![grafik](https://user-images.githubusercontent.com/82574125/125078652-ff833c00-e0c2-11eb-8cde-49c4aff18817.png)
+![grafik](https://user-images.githubusercontent.com/82574125/128140503-d7fae60f-7b43-40ca-ac12-a3b7f7655367.png)
 
 # Application
 
@@ -16,11 +16,7 @@ Driving mobility energy demand can be used to model future energy demand by hous
 As predicted by reseachers, households will electrify most of their energy consumption such as heating and mobility. 
 This tool can be used to model the increased mobility power demand which can be useful for further research on this topic and help to forecast power demand for suppliers.
 Different sociodemographic groups can be analysed which allows to model mobility behaviour for specific groups or comparisons between groups.\
-An exemplary application using synthetic data may be found here:
-
-*Kleinebrahm, Max; Torriti, Jacopo; McKenna, Russell; Ardone, Armin; Fichtner, Wolf;\
-Using neural networks to model long-term dependencies in occupancy behavior;\
-2021*
+Using synthetic data exemplary applications can be made. [1]
 
 # Installation
 
@@ -43,6 +39,8 @@ The tool requires the following Python packages:
 
 The input data can be found in ...\SOC_profile_generation\inputs.
 Own datasets with same format can be used.
+Codeplan for all relevant data can be found in Codeplan_SOC_Profile_Generation:\
+https://github.com/Tobi-KL/SOC_profile_generation/blob/main/Codeplan_SOC_Profile_Generation.txt
 
 The following data is required:
 - pkl file with mobility data for households (e.g. MOP-data, Germany)
@@ -168,3 +166,8 @@ The user is informed whether the car segment is adjusted to fit the profile, as 
 Plots can be created, e.g. State-of-charge plot for Max and Min charging strategy:
 
 ![grafik](https://user-images.githubusercontent.com/82574125/124934352-e87e1480-e004-11eb-8756-5c2004808f52.png)
+
+# References
+[1] Kleinebrahm, Max; Torriti, Jacopo; McKenna, Russell; Ardone, Armin; Fichtner, Wolf;\
+Using neural networks to model long-term dependencies in occupancy behavior;\
+Energy and Buildings 240 (2021)
