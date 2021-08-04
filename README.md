@@ -20,11 +20,11 @@ Using synthetic data exemplary applications can be made. [1]
 
 # Installation
 
-Load the ipynb file "Run_SOC_Profile_Generation" into Google Colab.
-Download and save all classes and functions into one directory and change directory in Colab-file.
-Download all input data.
-Adjust all paths in Colab file depending where classes, functions and input data are saved.\
-For detailed installation instructions see md-file "Installation".
+1. Download code from github
+2. Unzip file and save in one directory
+3. Open "Run_SOC_Profile_Generation" in Google Colab
+4. Change directory in Colab file.
+5. Run all cells in Colab file.
 
 # Dependencies
 
