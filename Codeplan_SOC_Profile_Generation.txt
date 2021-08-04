@@ -1,0 +1,86 @@
+1.) RANK HOUSEHOLDS
+
+% population: Inhabitant size class
+1: under 2,000
+2: 2,000 up to 4,999
+3: 5,000 up to 19,999
+4: 20,000 up to 49,999
+5: 50,000 up to 99,999
+6: 100,000 up to 499,999
+7: 500,000 and more
+
+% income: How high is the net household income per month?
+1: Less than 500 €
+2: 500 up to 999 €
+3: 1,000 up to 1,499 €
+4: 1,500 up to 1,999 €
+5: 2,000 up to 2,499 €
+6: 2,500 up to 2,999 €
+7: 3,000 up to 3,499 €
+8: 3,500 up to 3,999 €
+9: 4,000 up to 4,999 €
+10: 5,000 € and more
+. No response
+
+% job: Employment status
+0: Not employed: child, not in kindergarten
+1: Employed: full time
+2: Employed: half time
+3: Employed: temporarily unemployed
+4: Education: in school, at university, in further education
+5: Education: in vocational education
+6: Not employed: homemaker
+7: Not employed: retired
+8: Not employed: child, in kindergarten
+. No response
+
+
+2.) MOP DATA
+
+% mop_state
+0: not known (mobile or not mobile)
+1: work
+2: work
+3: school,training
+4: shopping
+5: private
+6: bring,pick up
+7: freetime
+8: home
+9: else (outside not mobile)
+10: not known (not mobile)
+11: by foot 
+12: bicycle
+13: motorcycle
+14: car driver
+15: car codriver
+16: public transport
+17: long distance public-transport
+18: else (mobile)
+20: not known (mobile)
+
+%mop_speed
+average speed while being mobile
+
+%mop_meta
+header: Description of parameters (ID, age, BIK,...)
+
+'ID', 'JAHR', 'BIK', 'GKZ', 'EWZahl', 'HHGRO', 'EINKO', 'PKWHH',
+       'PERS_NR', 'SEX', 'GEBJAHR', 'BERUF', 'PKWVERF', 'NORMAL',
+       'PKWEigen', 'PKWimHH', 'PKWOHNE', 'HOMEOFF', 'BERTAG1', 'BERTAG2',
+       'BERTAG3', 'BERTAG4', 'BERTAG5', 'BERTAG6', 'BERTAG7', 'WOTAG1',
+       'WOTAG2', 'WOTAG3', 'WOTAG4', 'WOTAG5', 'WOTAG6', 'WOTAG7',
+       'DATUM1', 'DATUM2', 'DATUM3', 'DATUM4', 'DATUM5', 'DATUM6',
+       'DATUM7', 'KRANK1', 'KRANK2', 'KRANK3', 'KRANK4', 'KRANK5',
+       'KRANK6', 'KRANK7', 'WERK1', 'WERK2', 'WERK3', 'WERK4', 'WERK5',
+       'WERK6', 'WERK7', 'URLAUB1', 'URLAUB2', 'URLAUB3', 'URLAUB4',
+       'URLAUB5', 'URLAUB6', 'URLAUB7', 'ANORM11', 'ANORM12', 'ANORM13',
+       'ANORM14', 'ANORM15', 'ANORM16', 'ANORM17', 'TEMP1', 'TEMP2',
+       'TEMP3', 'TEMP4', 'TEMP5', 'TEMP6', 'TEMP7', 'REGEN1', 'REGEN2',
+       'REGEN3', 'REGEN4', 'REGEN5', 'REGEN6', 'REGEN7', 'MOBIL1',
+       'MOBIL2', 'MOBIL3', 'MOBIL4', 'MOBIL5', 'MOBIL6', 'MOBIL7',
+       'month1', 'month2', 'month3', 'month4', 'month5', 'month6',
+       'month7', 'day1', 'day2', 'day3', 'day4', 'day5', 'day6', 'day7',
+       'dayofyear1', 'dayofyear2', 'dayofyear3', 'dayofyear4',
+       'dayofyear5', 'dayofyear6', 'dayofyear7'
+
