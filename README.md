@@ -1,6 +1,6 @@
 --- vorläufig: in input die beiden Dateien "data_mop_priority.pkl" und "TANK18.csv" einfügen (liegen nicht auf Github) ---
 
-# SOC_profile_generation
+# SOC_Profile_Generation
 
 The SOC_profile_generation tool generates electric load profiles for households based on their mobility behaviour.
 For all drivers in one household, the tool assigns a household car and generates a car mobility profile accordingly.
@@ -37,28 +37,28 @@ The tool requires the following Python packages:
 - pickle
 - os.path
 
-# Input data
+# Input Data
 
 The input data can be found in ...\SOC_profile_generation\inputs.
 Own datasets with same format can be used.
 Codeplan for all relevant data can be found in Codeplan_SOC_Profile_Generation:\
 https://github.com/Tobi-KL/SOC_profile_generation/blob/main/Codeplan_SOC_Profile_Generation.txt
 
-The following data is required:
+The following data sets are required:
 - pkl file with mobility data for households (e.g. MOP-data, Germany)
 - csv file with temperatures for each timestep (download via http://www.soda-pro.com/web-services/meteo-data/merra)
 - csv file with electric cars for each car segment
 - csv file which holds information about electric cars' battery capacity (kWh), WLTP consumption (kWh) and charging power (kW)
 
-# Detailed description of tool
+# Detailed Description of Tool
 
 The tool can be subdivided into the following sections:
 
-## Household selection
+## Household Selection
 The tool allows the user to choose specific households from the data set. For this the user adjusts a set of input variables.
 A list of the 10 best fitting households is returned according to the user's input, following these rules:
-- Main factors (1,2,3) need to be fulfilled exactly.
-- Soft factors (4,5,6,7,8) need to be fulfilled as good as possible. Soft factors are weighted according to user's input.
+- Required factors (1,2,3) need to be fulfilled exactly.
+- Optional factors (4,5,6,7,8) need to be fulfilled as good as possible. Soft factors are weighted according to user's input.
 
 Household selection factors are:
 1) number of occupants in household
@@ -75,7 +75,7 @@ The driver with the highest driven distance in the observation periode is alloca
 For Households with fewer cars than drivers, the mobility profiles of the drivers with the lowest total driven distance are merged to one mobility profile until number of drivers matches number of cars.
 As a consequence, one mobility profile is created for each household car.
 
-## Electric car substitution and feasibilty check
+## Electric Car Substitution and Feasibilty Check
 Each car is substituted with an electric car according to the car segment defined by Kraftfahrtbundesamt, Germany.
 Car substitution can be easily adjusted in the code since car characteristics, technical specifications, prices and segments change regularly.
 
@@ -83,7 +83,7 @@ Ahead of State-of-Charge-Profile-Generation, it is checked whether the chosen el
 If not, the segment is increased as long as feasibility is reached.
 If the segment with the highest battery capacity is reached and the car still can not manage the mobility profile, State-of-Charge-Profile-Generation is stopped for this car.
 
-## State-of-Charge-Profile-Generation
+## State-of-Charge-Profile Generation
 The tool calculates the state-of-charge of the current timestep. The calculation for each timestep can be simplified as follows:
 - Car is driving: state-of-charge decreases
 - Car is charging: state-of-charge increases
@@ -93,7 +93,7 @@ Charging is simulated for two charging strategies:
 - Max strategy: anytime car is at a place where it can charge and battery not already full -> charge to max
 - Min strategy: hold state-of-charge as low as possible, only charge right before driving and only the amount that will be used
 
-### Simulation of driving
+### Simulation of Driving
 The consumption (kWh) in each driving timestep is calculated based on the following influence variables:
 - distance (calculated with WLTP consumption (kWh/100km)
 - speed factor (consumption is multiplied by factor depending on driving speed, see below)
@@ -116,7 +116,7 @@ Assuming that there is no additional consumption for outside temperature = 20°C
 - temperature is 10°C above 20°C: 0.5 kW cooling power
 - etc.
 
-### Simulation of charging
+### Simulation of Charging
 User can input lower and upper bound for state-of-charge, e.g. 10% and 90% of battery capacity.
 Max charging power is restricted by max car charging power and by max charging station power. Amount of energy being charged is restricted by capacity of battery.
 The user can enter individual max charging power for both charging at home and at work (or only one of both).
@@ -133,7 +133,7 @@ Anytime the car is located at a possible charging station (state: car at home an
 ### Min Strategy
 State-of-charge at last timestep is as low as possible. Tool uses backwards iteration to determine when charging has to start before a trip. Charging occurs only until amount of energy is charged that is just enough for the following trip.
 
-### Energy demand calculation
+### Energy Demand Calculation
 The user has the possibility to influence the efficiency of both charging stations (home, work). The energy demand of a charging station is therefore higher than the energy which can later be used by the car.
 
 ## Output
@@ -168,6 +168,7 @@ The user is informed whether the car segment is adjusted to fit the profile, as 
 Plots can be created, e.g. State-of-charge plot for Max and Min charging strategy:
 
 ![grafik](https://user-images.githubusercontent.com/82574125/128141020-93363395-c488-4850-a132-117d6db597bf.png)
+
 # References
 [1] Kleinebrahm, Max; Torriti, Jacopo; McKenna, Russell; Ardone, Armin; Fichtner, Wolf;\
 Using neural networks to model long-term dependencies in occupancy behavior;\
