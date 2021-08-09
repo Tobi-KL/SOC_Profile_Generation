@@ -46,7 +46,7 @@ https://github.com/Tobi-KL/SOC_profile_generation/blob/main/Codeplan_SOC_Profile
 
 The following data sets are required:
 - pkl file with mobility data for households (e.g. MOP-data, Germany)
-- csv file with temperatures for each timestep (download via http://www.soda-pro.com/web-services/meteo-data/merra)
+- csv file with temperatures for each timestep (download via http://www.soda-pro.com/web-services/meteo-data/merra) [2]
 - csv file with electric cars for each car segment
 - csv file which holds information about electric cars' battery capacity (kWh), WLTP consumption (kWh) and charging power (kW)
 
@@ -173,3 +173,5 @@ Plots can be created, e.g. State-of-charge plot for Max and Min charging strateg
 [1] Kleinebrahm, Max; Torriti, Jacopo; McKenna, Russell; Ardone, Armin; Fichtner, Wolf;\
 Using neural networks to model long-term dependencies in occupancy behavior;\
 Energy and Buildings 240 (2021)
+
+[2] Global Modeling and Assimilation Office (GMAO) (2015), MERRA-2 tavg1_2d_slv_Nx: 2d,1-Hourly,Time-Averaged,Single-Level,Assimilation,Single-Level Diagnostics V5.12.4, Greenbelt, MD, USA, Goddard Earth Sciences Data and Information Services Center (GES DISC), Accessed [09.08.2021] DOI:10.5067/VJAFPLI1CSIV
