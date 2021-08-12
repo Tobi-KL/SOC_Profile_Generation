@@ -8,7 +8,7 @@ Each household car is substituted with a simlilar electric car, assuming no chan
 The tool calculates the overall energy demand of each electric car and, as a result, the energy demand for mobility of the household.
 Focus is set on realistic simulation of energy consumption of electric cars in everyday use.
 
-![grafik](https://user-images.githubusercontent.com/82574125/128140503-d7fae60f-7b43-40ca-ac12-a3b7f7655367.png)
+![grafik](https://user-images.githubusercontent.com/82574125/129238207-677d8718-e0dc-4c56-be73-8cb6a87a15ef.png)
 
 # Application
 
@@ -167,7 +167,7 @@ The user is informed whether the car segment is adjusted to fit the profile, as 
 
 Plots can be created, e.g. State-of-charge plot for Max and Min charging strategy:
 
-![grafik](https://user-images.githubusercontent.com/82574125/128141020-93363395-c488-4850-a132-117d6db597bf.png)
+![grafik](https://user-images.githubusercontent.com/82574125/129238023-ccdc7fe9-8666-4adc-80db-d7973399b0ff.png)
 
 # References
 [1] Kleinebrahm, Max; Torriti, Jacopo; McKenna, Russell; Ardone, Armin; Fichtner, Wolf;\
