@@ -237,7 +237,7 @@ def create_profiles(households,
                                 home[i-1] = True
                         
                     plt.fill_between(range(0, len(states)), car.capacity, 0, 
-                                     color = 'lightgreen', alpha = 0.1, 
+                                     color = 'lawngreen', alpha = 0.1, 
                                      where = home, label = "Home")
  
                     work = np.where(states == 1, True, 
@@ -250,7 +250,7 @@ def create_profiles(households,
                             else:
                                 work[i-1] = True
                     plt.fill_between(range(0, len(states)), car.capacity, 0, 
-                                     color = 'aqua', alpha = 0.1, 
+                                     color = 'darkgreen', alpha = 0.1, 
                                      where = work, label = "Work")
  
                     plt.legend(bbox_to_anchor = (1.05, 1), loc = 'upper left')
