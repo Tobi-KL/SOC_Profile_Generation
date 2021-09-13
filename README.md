@@ -169,6 +169,11 @@ Plots can be created, e.g. State-of-charge plot for Max and Min charging strateg
 
 ![grafik](https://user-images.githubusercontent.com/82574125/129238023-ccdc7fe9-8666-4adc-80db-d7973399b0ff.png)
 
+The following plot shows aggregated load profiles for 2.259 cars (MOP-Data set)
+
+![grafik](https://user-images.githubusercontent.com/82574125/133086588-b40de7e3-774c-4e78-9a84-77684d71b842.png)
+
+
 # References
 [1] Kleinebrahm, Max; Torriti, Jacopo; McKenna, Russell; Ardone, Armin; Fichtner, Wolf;\
 Using neural networks to model long-term dependencies in occupancy behavior;\
